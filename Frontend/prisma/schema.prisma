@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model groups {
+  pk_id        Int            @id @default(autoincrement())
+  group_name   String         @db.VarChar(255)
+  date_created DateTime?      @default(now()) @db.Timestamp(6)
+  auth         String?        @db.VarChar(5)
+  usergroups   usergroups[]
+  userproducts userproducts[]
+}
+
+model usergroups {
+  pk_id        Int       @id @default(autoincrement())
+  fk_user_id   Int       @default(autoincrement())
+  fk_group_id  Int       @default(autoincrement())
+  date_created DateTime? @default(now()) @db.Timestamp(6)
+  role         Int
+  groups       groups    @relation(fields: [fk_group_id], references: [pk_id], onDelete: NoAction, onUpdate: NoAction)
+  users        users     @relation(fields: [fk_user_id], references: [pk_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model userproducts {
+  pk_id         Int       @id @default(autoincrement())
+  fk_user_id    Int       @default(autoincrement())
+  fk_group_id   Int       @default(autoincrement())
+  category_name String    @db.VarChar(255)
+  amount        Int
+  date_created  DateTime? @default(now()) @db.Timestamp(6)
+  groups        groups    @relation(fields: [fk_group_id], references: [pk_id], onDelete: NoAction, onUpdate: NoAction)
+  users         users     @relation(fields: [fk_user_id], references: [pk_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  pk_id        Int            @id @default(autoincrement())
+  user_name    String         @db.VarChar(255)
+  email        String         @db.VarChar(255)
+  date_created DateTime?      @default(now()) @db.Timestamp(6)
+  is_admin     Int
+  usergroups   usergroups[]
+  userproducts userproducts[]
+}
