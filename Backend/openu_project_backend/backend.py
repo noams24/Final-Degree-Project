@@ -9,11 +9,7 @@ from config import categories_config
 class Database:
     def __init__(self):
         self.conn = psycopg2.connect(
-            host="localhost",
-            database="sadna",
-            user="postgres",
-            password="1234",
-            port=5432)
+           )
         
         self.cur = self.conn.cursor()
        
@@ -87,14 +83,15 @@ class Database:
            self.cur.execute(f'SELECT SUM(amount) FROM userproducts where fk_group_id = {group_id}') 
         return self.cur.fetchone()[0]
 
-    def exists(self,user_id,user_name, email, group_id, group_name):
+    def exists(self,user_id, group_id, group_name):
 
         #check if user exists
         self.cur.execute(f"select * from users where pk_id = {user_id}")
         user = self.cur.fetchall()
         if not user:
-            self.cur.execute("INSERT INTO users (pk_id,user_name,email,is_admin) VALUES (%s, %s, %s, %s)",(user_id, user_name, email, 1))
-            self.conn.commit()
+            return "Please enter Email first!"
+            #self.cur.execute("INSERT INTO users (pk_id,user_name,email,is_admin) VALUES (%s, %s, %s, %s)",(user_id, user_name, email, 0))
+            #self.conn.commit()
         
         # check if group exists
         self.cur.execute(f"select * from groups where pk_id = {group_id}")
@@ -114,6 +111,28 @@ class Database:
                 role = 1
             self.cur.execute("INSERT INTO usergroups (fk_user_id,fk_group_id, role) VALUES (%s, %s, %s)",(user_id, group_id, role))
             self.conn.commit()
+
+    def add_user(self,user_id,user_name, email):
+        #check if user exists
+
+        #check if email already in the db:
+        self.cur.execute(f"select * from users where email = '{email}'")
+        email_in_db = self.cur.fetchall()
+        if email_in_db:
+            return "Email already in the db"
+        
+
+        self.cur.execute(f"select * from users where pk_id = {user_id}")
+        user = self.cur.fetchall()
+        if not user:
+            self.cur.execute("INSERT INTO users (pk_id,user_name,email,is_admin) VALUES (%s, %s, %s, %s)",(user_id, user_name, email, 0))
+            self.conn.commit()
+            return "User added"
+        #update 
+        else:
+            return "User already has email"
+
+        
 
 
 
@@ -246,3 +265,13 @@ def remove_category(group_id, category):
     else:
         return "category not exist"
 
+
+
+#print(add_category("1","foodd"))
+#db = Database()
+#print(db.split(-895523590))
+#db.barchart(-895523590, "")
+#db.barchart(-749348626, "")
+#print(db.total_expenses(-749348626))
+#db.toExcel(-749348626)
+#db.piechart(-749348626)
