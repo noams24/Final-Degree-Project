@@ -1,7 +1,7 @@
-from Responses import responses, get_price, get_category
+from Responses import responses, get_price, get_category, valid_email
 from config import TOKEN, Button, Command, categories_config
 
-from backend2 import Database, get_categories, write_category, remove_category
+from backend import Database, get_categories, write_category, remove_category
 
 from telegram import (
     InlineKeyboardButton,
@@ -25,12 +25,24 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f'This bot avaible only for groups!')
         return
 
+    
+
     user_name = update.message.from_user.first_name
     group_name = update.message.chat.title
     user_id = update.message.from_user.id
     group_id = update.message.chat.id
+
+    # checks of user enterd email and checks if it's valid
+    if valid_email(update.message.text):
+        response = db.add_user(user_id, user_name, email=update.message.text)
+        await update.message.reply_text(response)
+        return
+    
     # check if user and group exists:
-    db.exists(user_id, user_name,"noam@test.com", group_id, group_name)
+    response = db.exists(user_id, group_id, group_name)
+    if response: 
+        await update.message.reply_text(response) #user doesn't exists
+        return
 
     all_categories = categories_config + get_categories(str(group_id))
     reply = responses(update.message.text)
@@ -47,9 +59,10 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if int(update.message.text) < 0:
             update.message.reply_text("Expense must be greater than 0", reply_markup=reply_markup)
         reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(reply, reply_markup=reply_markup)
+    else:
+        await update.message.reply_text("You must enter a number")
 
-
-    await update.message.reply_text(reply, reply_markup=reply_markup)
 
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
