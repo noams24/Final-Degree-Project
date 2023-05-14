@@ -1,5 +1,6 @@
 
 #examples:
+import re
 groups = ['123','1234']
 users = ['12', '124']
 
@@ -29,3 +30,9 @@ def add_row_private(user_id):
     else:
         pass
 
+
+def valid_email(email):
+    if len(email) > 7:
+        if re.match("^.+@(\[?)[a-zA-Z0-9-.]+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$", email) != None:
+            return True
+    return False
