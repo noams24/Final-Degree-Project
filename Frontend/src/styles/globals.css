@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*::after,*::before{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+main{
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.home-page--header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#pie-chart svg > g:first-of-type text{
+  fill:#757575 !important;
+  font-size: 16px;
+  font-weight: normal;
+  font-family: Roboto;
+}
